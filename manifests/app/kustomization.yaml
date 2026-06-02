@@ -3,10 +3,12 @@ kind: Kustomization
 namespace: py-wallet-dev
 
 commonAnnotations:
+  app.kubernetes.io/managed-by: kustomize
+
 images:
   - name: ghcr.io/amysyutin/py_wallet
     newTag: latest
-  app.kubernetes.io/managed-by: kustomize
+
 labels:
   - includeSelectors: false
     includeTemplates: true

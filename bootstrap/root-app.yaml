@@ -1,16 +1,17 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: py-wallet
+  name: root-app
   namespace: argocd
 spec:
   project: default
   source:
-    path: manifests/app
-    repoURL: https://github.com/amysyutin/py_wallet-infra.git
+    repoURL: https://github.com/<org>/<py_wallet-infra>.git
     targetRevision: main
+    path: apps
   destination:
     server: https://kubernetes.default.svc
+    namespace: argocd
   syncPolicy:
     automated:
       prune: true

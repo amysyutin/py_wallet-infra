@@ -2,6 +2,10 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: py-wallet-migrate
+  namespace: py-wallet-dev
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
 spec:
   backoffLimit: 0
   ttlSecondsAfterFinished: 600
@@ -10,7 +14,7 @@ spec:
       restartPolicy: Never
       containers:
         - name: migrate
-          image: IMAGE_PLACEHOLDER
+          image: ghcr.io/amysyutin/py_wallet:latest
           imagePullPolicy: Always
           command: ["alembic", "upgrade", "head"]
           envFrom:

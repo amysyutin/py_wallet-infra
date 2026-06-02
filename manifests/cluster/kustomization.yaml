@@ -4,4 +4,3 @@ resources:
   - namespace.yaml
   - clusterissuer-staging.yaml
   - clusterissuer-prod.yaml
-  - rbac-ci-deployer.yaml

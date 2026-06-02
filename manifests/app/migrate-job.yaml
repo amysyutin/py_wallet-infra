@@ -14,7 +14,7 @@ spec:
       restartPolicy: Never
       containers:
         - name: migrate
-          image: ghcr.io/amysyutin/py_wallet:latest
+          image: ghcr.io/amysyutin/py_wallet
           imagePullPolicy: Always
           command: ["alembic", "upgrade", "head"]
           envFrom:

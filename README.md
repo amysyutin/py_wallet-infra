@@ -16,21 +16,34 @@ Move away from push deploys from CI (`kubectl` + kubeconfig) to GitOps:
 ## Deploy flow
 
 ```mermaid
-flowchart LR
-  pushMain["Push to main (app-repo)"] --> ciTest["CI: lint + tests"]
-  ciTest --> ciBuild["CI: docker build"]
-  ciBuild --> ciPush["CI: push image to GHCR :SHA"]
+flowchart TB
+  subgraph appRepo["1. Application CI"]
+    direction TB
+    pushMain["Push to main (app-repo)"] --> ciTest["CI: lint + tests"]
+    ciTest --> ciBuild["CI: docker build"]
+    ciBuild --> ciPush["CI: push image to GHCR :SHA"]
+  end
 
-  ciPush --> updateInfra["deploybot: bump newTag in infra-repo"]
-  updateInfra --> infraCommit["Commit to py_wallet-infra"]
+  subgraph infraRepo["2. Infra repo update"]
+    direction TB
+    updateInfra["deploybot: bump newTag in infra-repo"] --> infraCommit["Commit to py_wallet-infra"]
+  end
 
-  infraCommit --> argoDetect["Argo CD: git drift detected"]
-  argoDetect --> argoSync["Argo CD sync"]
+  subgraph argoCd["3. Argo CD sync"]
+    direction TB
+    argoDetect["Git drift detected"] --> argoSync["Sync desired state"]
+  end
 
-  argoSync --> preSync["PreSync: migrate Job (same SHA)"]
-  preSync --> deploy["Sync: Deployment (same SHA)"]
-  deploy --> rollout["RollingUpdate + readinessProbe"]
-  rollout --> healthy["Synced / Healthy"]
+  subgraph cluster["4. Cluster rollout"]
+    direction TB
+    preSync["PreSync: migrate Job (same SHA)"] --> deploy["Sync: Deployment (same SHA)"]
+    deploy --> rollout["RollingUpdate + readinessProbe"]
+    rollout --> healthy["Synced / Healthy"]
+  end
+
+  ciPush --> updateInfra
+  infraCommit --> argoDetect
+  argoSync --> preSync
 ```
 
 ## Repository layout

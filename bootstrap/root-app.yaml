@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/<org>/<py_wallet-infra>.git
+    repoURL: https://github.com/amysyutin/py_wallet-infra.git
     targetRevision: main
     path: apps
   destination:
@@ -16,3 +16,5 @@ spec:
     automated:
       prune: true
       selfHeal: true
+
+      

@@ -8,10 +8,10 @@ spec:
   ingressClassName: traefik
   tls:
     - hosts:
-        - py-wallet.45-132-75-118.sslip.io
+        - pywallet.dev
       secretName: py-wallet-tls
   rules:
-    - host: py-wallet.45-132-75-118.sslip.io
+    - host: pywallet.dev
       http:
         paths:
           - path: /

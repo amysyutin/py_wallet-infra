@@ -5,7 +5,7 @@ metadata:
 spec:
   secretName: py-wallet-tls
   issuerRef:
-    name: letsencrypt-staging
+    name: letsencrypt-prod
     kind: ClusterIssuer
   dnsNames:
-    - py-wallet.45-132-75-118.sslip.io
+    - pywallet.dev

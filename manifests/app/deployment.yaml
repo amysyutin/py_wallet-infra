@@ -25,6 +25,9 @@ spec:
           imagePullPolicy: Always
           ports: 
             - containerPort: 8000
+          env:
+            - name: APP_ENV
+              value: "production"
           envFrom:
             - secretRef:
                 name: py-wallet-secrets 

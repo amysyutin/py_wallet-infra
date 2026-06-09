@@ -17,7 +17,7 @@ spec:
       labels:
         app: py-wallet
     spec:
-      serviceAccountName: default
+      serviceAccountName: py-wallet
       terminationGracePeriodSeconds: 60
       containers:
         - name: py-wallet
@@ -35,15 +35,15 @@ spec:
                 name: py-wallet-config
           readinessProbe:
             httpGet:
-              path: /health
+              path: /health/ready
               port: 8000
             initialDelaySeconds: 5
-            periodSeconds: 10
+            periodSeconds: 5
             timeoutSeconds: 3
-            failureThreshold: 3
+            failureThreshold: 30
           livenessProbe:
             httpGet:
-              path: /health
+              path: /health/live
               port: 8000
             initialDelaySeconds: 15
             periodSeconds: 20

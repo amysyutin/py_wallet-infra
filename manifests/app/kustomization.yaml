@@ -25,3 +25,5 @@ resources:
 - middleware-redirect-https.yaml
 - configmap.yaml
 - migrate-job.yaml
+- serviceaccount.yaml
+- servicemonitor.yaml

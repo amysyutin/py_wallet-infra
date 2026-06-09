@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: py-wallet-dashboard
+  labels:
+    grafana_dashboard: "1"
+data:
+  py-wallet.json: |
+    {
+      "uid": "py-wallet",
+      "title": "py-wallet",
+      "schemaVersion": 39,
+      "version": 1,
+      "timezone": "browser",
+      "refresh": "30s",
+      "time": { "from": "now-1h", "to": "now" },
+      "panels": [
+        {
+          "id": 1,
+          "title": "Requests per second",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "targets": [
+            {
+              "expr": "sum(rate(http_requests_total{namespace=\"py-wallet-dev\"}[5m]))",
+              "legendFormat": "rps"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "title": "Latency p95",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{namespace=\"py-wallet-dev\"}[5m])) by (le))",
+              "legendFormat": "p95"
+            }
+          ]
+        }
+      ],
+      "templating": { "list": [] }
+    }

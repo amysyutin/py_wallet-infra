@@ -2,6 +2,22 @@
 
 GitOps repository for the **py_wallet** project: Kubernetes manifests and Argo CD Applications (app-of-apps), with pull-based deployments.
 
+## Production Readiness Status
+
+| Area | Status | Current state | Next step |
+|---|---|---|---|
+| GitOps | Done | Argo CD app-of-apps, pull-based deploy | AppProject hardening |
+| CI/CD | Done | GHCR image by SHA, infra tag bump | Image signing / SBOM |
+| Kubernetes runtime | Done | Deployment, Service, Ingress, probes, resources | HPA/PDB |
+| Database migrations | Done | Argo CD PreSync Alembic Job | Expand/contract migration policy |
+| TLS | Done | cert-manager + Let's Encrypt | Certificate expiry alert |
+| Secrets | Partial | Kubernetes Secrets out-of-band | SOPS/SealedSecrets |
+| Monitoring | Done | kube-prometheus-stack + ServiceMonitor + dashboard | Alerts/SLO |
+| Security hardening | Partial | ServiceAccount, no CI cluster access, JWT checks | NetworkPolicy, securityContext |
+| Backup/restore | Planned | Not implemented | pg_dump CronJob + restore runbook |
+
+See [`docs/releases/v0.1.md`](docs/releases/v0.1.md) for the platform release summary.
+
 ## Goals
 
 Move away from push deploys from CI (`kubectl` + kubeconfig) to GitOps:

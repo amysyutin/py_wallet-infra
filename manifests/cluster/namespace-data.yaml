@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: py-wallet-data
+  labels:
+    app.kubernetes.io/name: py-wallet
+    app.kubernetes.io/part-of: py-wallet
+    app.kubernetes.io/environment: database

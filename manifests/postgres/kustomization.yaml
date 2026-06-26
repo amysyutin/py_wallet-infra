@@ -4,3 +4,4 @@ namespace: py-wallet-data
 resources:
   - statefulset.yaml
   - service.yaml
+  - sealed-postgres-secret.yaml

@@ -27,3 +27,4 @@ resources:
 - migrate-job.yaml
 - serviceaccount.yaml
 - servicemonitor.yaml
+- sealed-py-wallet-secrets.yaml

@@ -11,7 +11,7 @@ GitOps repository for the **py_wallet** project: Kubernetes manifests and Argo C
 | Kubernetes runtime | Done | Deployment, Service, Ingress, probes, resources | HPA/PDB |
 | Database migrations | Done | Argo CD PreSync Alembic Job | Expand/contract migration policy |
 | TLS | Done | cert-manager + Let's Encrypt | Certificate expiry alert |
-| Secrets | Partial | Kubernetes Secrets out-of-band | SOPS/SealedSecrets |
+| Secrets | Done | SealedSecrets in git (`postgres-secret`, `py-wallet-secrets`) | Backup controller master key offline |
 | Monitoring | Done | kube-prometheus-stack + ServiceMonitor + dashboard | Alerts/SLO |
 | Security hardening | Partial | ServiceAccount, no CI cluster access, JWT checks | NetworkPolicy, securityContext |
 | Backup/restore | Planned | Not implemented | pg_dump CronJob + restore runbook |
@@ -74,8 +74,8 @@ py_wallet-infra/
 │   └── py-wallet.yaml         # Argo Application → manifests/app
 └── manifests/
     ├── cluster/               # Namespace, cert-manager ClusterIssuers, …
-    ├── postgres/              # Postgres StatefulSet + Service
-    └── app/                   # App Deployment, Ingress, migrate Job, …
+    ├── postgres/              # Postgres StatefulSet + SealedSecret
+    └── app/                   # App Deployment, Ingress, migrate Job, SealedSecret, …
 ```
 
 ## Image versioning
@@ -108,9 +108,44 @@ destination:
   server: https://kubernetes.default.svc
 ```
 
+## Secrets (SealedSecrets)
+
+Sensitive values live in git as **encrypted** `SealedSecret` resources; the Bitnami controller in the cluster decrypts them into ordinary `Secret` objects at sync time.
+
+| Secret | Namespace | Keys |
+|--------|-----------|------|
+| `postgres-secret` | `py-wallet-data` | `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` |
+| `py-wallet-secrets` | `py-wallet-dev` | `DATABASE_URL`, `JWT_SECRET` |
+
+Manifests: [`manifests/postgres/sealed-postgres-secret.yaml`](manifests/postgres/sealed-postgres-secret.yaml), [`manifests/app/sealed-py-wallet-secrets.yaml`](manifests/app/sealed-py-wallet-secrets.yaml).
+
+**Rotate or add a secret:** generate a plaintext `Secret` locally, pipe through `kubeseal`, commit the resulting `SealedSecret` (never commit plaintext).
+
+```bash
+kubectl create secret generic py-wallet-secrets \
+  -n py-wallet-dev \
+  --from-literal=DATABASE_URL='...' \
+  --from-literal=JWT_SECRET='...' \
+  --dry-run=client -o yaml \
+| kubeseal --format yaml \
+  --controller-namespace kube-system \
+  --controller-name sealed-secrets \
+> manifests/app/sealed-py-wallet-secrets.yaml
+```
+
+**PreSync ordering:** the app `SealedSecret` is a PreSync hook with `sync-wave: "-1"` so `py-wallet-secrets` exists before the Alembic migrate Job (`sync-wave: "0"`). The migrate Job only mounts the DB secret (not the app ConfigMap).
+
+**Outside git:** backup the Sealed Secrets controller master key (loss = re-seal all secrets on a new cluster):
+
+```bash
+kubectl get secret -n kube-system \
+  -l sealedsecrets.bitnami.com/sealed-secrets-key \
+  -o yaml > sealed-secrets-master.key.yaml   # store offline, not in git
+```
+
 ## Security model
 
-- **No secrets in git** — manifests reference Kubernetes `Secret` objects (`py-wallet-secrets`, `postgres-secret`) created out-of-band.
+- **No plaintext secrets in git** — only `SealedSecret` ciphertext; decryption happens in-cluster.
 - **No CI cluster access** — GitHub Actions does not use kubeconfig or deploy RBAC; only Argo CD applies manifests.
 - **Legacy `ci-deployer` RBAC removed** — was used for the old push-deploy model.
 

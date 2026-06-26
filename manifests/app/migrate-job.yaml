@@ -20,5 +20,3 @@ spec:
           envFrom:
             - secretRef:
                 name: py-wallet-secrets
-            - configMapRef:
-                name: py-wallet-config

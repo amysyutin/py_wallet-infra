@@ -4,3 +4,4 @@ namespace: monitoring
 
 resources:
   - py-wallet-dashboard.yaml
+  - loki-datasource.yaml

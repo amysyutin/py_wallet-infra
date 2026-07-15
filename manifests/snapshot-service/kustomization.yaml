@@ -14,4 +14,4 @@ resources:
 images:
   - name: ghcr.io/amysyutin/py_wallet-snapshot-service
     newName: ghcr.io/amysyutin/py_wallet-snapshot-service
-    newTag: 366e168a2a490660f9cbef2f80562916f54da5c9
+    newTag: 98d235c7818723108b9ae2fbe6af2d89529c8162

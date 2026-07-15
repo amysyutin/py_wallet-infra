@@ -16,6 +16,8 @@ spec:
     metadata:
       labels:
         app: py-wallet
+      annotations:
+        pywallet.dev/config-revision: "snapshot-service-v1"
     spec:
       serviceAccountName: py-wallet
       terminationGracePeriodSeconds: 60

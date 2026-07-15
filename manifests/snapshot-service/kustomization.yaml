@@ -1,0 +1,17 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: py-wallet-dev
+
+resources:
+  - deployment.yaml
+  - service.yaml
+  - configmap.yaml
+  - migrate-job.yaml
+  - serviceaccount.yaml
+  - servicemonitor.yaml
+  - sealed-snapshot-service-secrets.yaml
+
+images:
+  - name: ghcr.io/amysyutin/py_wallet-snapshot-service
+    newName: ghcr.io/amysyutin/py_wallet-snapshot-service
+    newTag: 366e168a2a490660f9cbef2f80562916f54da5c9

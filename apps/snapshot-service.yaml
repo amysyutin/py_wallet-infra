@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: py-wallet-snapshot-service
+  namespace: argocd
+spec:
+  project: default
+  source:
+    path: manifests/snapshot-service
+    repoURL: https://github.com/amysyutin/py_wallet-infra.git
+    targetRevision: main
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: py-wallet-dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

@@ -9,3 +9,6 @@ data:
   RPC_URL_BNB: https://bsc.drpc.org
   RPC_URL_ARB: https://arbitrum-one-rpc.publicnode.com
   RPC_URL_LINEA: https://linea.drpc.org
+  SNAPSHOT_SERVICE_URL: "http://py-wallet-snapshot-service:8001"
+  SNAPSHOT_SCHEDULER_ENABLED: "false"
+  SNAPSHOT_AUTO_ON_WALLET_CREATE: "true"

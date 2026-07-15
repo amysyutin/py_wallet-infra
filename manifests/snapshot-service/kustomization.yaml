@@ -3,15 +3,15 @@ kind: Kustomization
 namespace: py-wallet-dev
 
 resources:
-  - deployment.yaml
-  - service.yaml
-  - configmap.yaml
-  - migrate-job.yaml
-  - serviceaccount.yaml
-  - servicemonitor.yaml
-  - sealed-snapshot-service-secrets.yaml
+- deployment.yaml
+- service.yaml
+- configmap.yaml
+- migrate-job.yaml
+- serviceaccount.yaml
+- servicemonitor.yaml
+- sealed-snapshot-service-secrets.yaml
 
 images:
-  - name: ghcr.io/amysyutin/py_wallet-snapshot-service
-    newName: ghcr.io/amysyutin/py_wallet-snapshot-service
-    newTag: 98d235c7818723108b9ae2fbe6af2d89529c8162
+- name: ghcr.io/amysyutin/py_wallet-snapshot-service
+  newName: ghcr.io/amysyutin/py_wallet-snapshot-service
+  newTag: 3e9526c937f76f377ca9d0537760070122e8cde8

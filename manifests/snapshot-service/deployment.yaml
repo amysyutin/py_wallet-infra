@@ -14,6 +14,8 @@ spec:
       app: py-wallet-snapshot-service
   template:
     metadata:
+      annotations:
+        pywallet.dev/config-revision: "scheduler-v1"
       labels:
         app: py-wallet-snapshot-service
     spec:

@@ -1,0 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: py-wallet-dev
+
+resources:
+  - deployment.yaml
+  - service.yaml
+  - serviceaccount.yaml
+
+images:
+  - name: ghcr.io/amysyutin/py_wallet-front
+    newName: ghcr.io/amysyutin/py_wallet-front
+    newTag: 5c37be0d2983ace32876f4ae28fe0f0cd33fb0b5

@@ -4,11 +4,11 @@ kind: Kustomization
 namespace: py-wallet-dev
 
 resources:
-  - deployment.yaml
-  - service.yaml
-  - serviceaccount.yaml
+- deployment.yaml
+- service.yaml
+- serviceaccount.yaml
 
 images:
-  - name: ghcr.io/amysyutin/py_wallet-front
-    newName: ghcr.io/amysyutin/py_wallet-front
-    newTag: 5c37be0d2983ace32876f4ae28fe0f0cd33fb0b5
+- name: ghcr.io/amysyutin/py_wallet-front
+  newName: ghcr.io/amysyutin/py_wallet-front
+  newTag: 784185aaf493590318d4c34b71bc3196f5b21428

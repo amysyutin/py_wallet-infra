@@ -28,3 +28,5 @@ resources:
 - serviceaccount.yaml
 - servicemonitor.yaml
 - sealed-py-wallet-secrets.yaml
+- ingress-frontend.yaml
+- middleware-strip-api.yaml

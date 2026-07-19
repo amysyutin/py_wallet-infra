@@ -33,6 +33,9 @@ spec:
           envFrom:
             - secretRef:
                 name: py-wallet-secrets 
+            - secretRef:
+                name: telegram-bot-secret
+                optional: true
             - configMapRef:
                 name: py-wallet-config
           readinessProbe:

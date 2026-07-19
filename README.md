@@ -17,6 +17,8 @@ GitOps repository for the **py_wallet** project: Kubernetes manifests and Argo C
 | Backup/restore | Planned | Not implemented | pg_dump CronJob + restore runbook |
 
 See [`docs/releases/v0.1.md`](docs/releases/v0.1.md) for the platform release summary.
+See [`docs/telegram-mini-app.md`](docs/telegram-mini-app.md) for Telegram Mini
+App, bot token, and daily balance scheduler operations.
 
 ## Goals
 
@@ -116,8 +118,14 @@ Sensitive values live in git as **encrypted** `SealedSecret` resources; the Bitn
 |--------|-----------|------|
 | `postgres-secret` | `py-wallet-data` | `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` |
 | `py-wallet-secrets` | `py-wallet-dev` | `DATABASE_URL`, `JWT_SECRET` |
+| `telegram-bot-secret` | `py-wallet-dev` | `TELEGRAM_BOT_TOKEN` |
 
 Manifests: [`manifests/postgres/sealed-postgres-secret.yaml`](manifests/postgres/sealed-postgres-secret.yaml), [`manifests/app/sealed-py-wallet-secrets.yaml`](manifests/app/sealed-py-wallet-secrets.yaml).
+
+The Telegram secret is intentionally not present until it is sealed for the
+target cluster. Its references are optional, so the website remains deployable
+without it. Follow the [Telegram Mini App runbook](docs/telegram-mini-app.md) to
+create and commit only the encrypted SealedSecret.
 
 **Rotate or add a secret:** generate a plaintext `Secret` locally, pipe through `kubeseal`, commit the resulting `SealedSecret` (never commit plaintext).
 

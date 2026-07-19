@@ -1,0 +1,60 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: py-wallet-telegram-daily-balance
+spec:
+  # Run frequently; the application selects only users whose local delivery
+  # time is due and records each delivery idempotently.
+  schedule: "*/5 * * * *"
+  # Enable only after telegram-bot-secret has been sealed and synced.
+  suspend: true
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 240
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 240
+      ttlSecondsAfterFinished: 600
+      template:
+        metadata:
+          labels:
+            app: py-wallet-telegram-daily-balance
+        spec:
+          serviceAccountName: py-wallet-telegram-daily-balance
+          automountServiceAccountToken: false
+          restartPolicy: Never
+          securityContext:
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: telegram-daily-balance
+              image: ghcr.io/amysyutin/py_wallet
+              imagePullPolicy: Always
+              command: ["python", "-m", "app.jobs.telegram_daily_balance"]
+              env:
+                - name: APP_ENV
+                  value: "production"
+              envFrom:
+                - secretRef:
+                    name: py-wallet-secrets
+                - secretRef:
+                    name: telegram-bot-secret
+                    optional: true
+                - configMapRef:
+                    name: py-wallet-config
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                readOnlyRootFilesystem: true
+              resources:
+                requests:
+                  cpu: 25m
+                  memory: 64Mi
+                limits:
+                  cpu: 250m
+                  memory: 256Mi

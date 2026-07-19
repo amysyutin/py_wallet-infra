@@ -30,3 +30,5 @@ resources:
 - sealed-py-wallet-secrets.yaml
 - ingress-frontend.yaml
 - middleware-strip-api.yaml
+- telegram-daily-balance-cronjob.yaml
+- telegram-daily-balance-serviceaccount.yaml

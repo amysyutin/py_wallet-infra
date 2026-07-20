@@ -4,8 +4,10 @@ The public bot is `@py_WalletBot` and the Mini App URL is
 `https://pywallet.dev/telegram`. These non-secret values are configured in
 `manifests/app/configmap.yaml`.
 
-There is no Telegram webhook. BotFather opens the existing frontend, while the
-backend validates Mini App `initData` and sends outbound daily balance messages.
+The backend accepts Telegram updates at
+`https://pywallet.dev/api/telegram/webhook`. The `/start` command returns a
+localized product description and a button that opens the Mini App. The backend
+also validates Mini App `initData` and sends outbound daily balance messages.
 
 ## Configure BotFather
 
@@ -21,7 +23,7 @@ issue trackers, CI variables that print logs, or application logs.
 ## Create the token secret
 
 The application expects a Secret named `telegram-bot-secret` in namespace
-`py-wallet-dev`, with the single key `TELEGRAM_BOT_TOKEN`. Both the API
+`py-wallet-dev`, with `TELEGRAM_BOT_TOKEN` and `TELEGRAM_WEBHOOK_SECRET`. Both the API
 Deployment and balance CronJob reference it as optional, so GitOps sync and the
 website remain healthy before the secret is installed. The CronJob is committed
 with `spec.suspend: true`, so it cannot run without the token. Without the token,
@@ -35,22 +37,27 @@ repository:
 ```bash
 umask 077
 PY_WALLET_TELEGRAM_TOKEN_FILE="$(mktemp)"
-trap 'rm -f "$PY_WALLET_TELEGRAM_TOKEN_FILE"' EXIT
+PY_WALLET_TELEGRAM_WEBHOOK_SECRET_FILE="$(mktemp)"
+trap 'rm -f "$PY_WALLET_TELEGRAM_TOKEN_FILE" "$PY_WALLET_TELEGRAM_WEBHOOK_SECRET_FILE"' EXIT
 read -rsp 'Telegram bot token: ' PY_WALLET_TELEGRAM_TOKEN
 echo
 printf '%s' "$PY_WALLET_TELEGRAM_TOKEN" > "$PY_WALLET_TELEGRAM_TOKEN_FILE"
 unset PY_WALLET_TELEGRAM_TOKEN
+python3 -c 'import secrets; print(secrets.token_urlsafe(48))' > "$PY_WALLET_TELEGRAM_WEBHOOK_SECRET_FILE"
 kubectl create secret generic telegram-bot-secret \
   --namespace py-wallet-dev \
   --from-file=TELEGRAM_BOT_TOKEN="$PY_WALLET_TELEGRAM_TOKEN_FILE" \
+  --from-file=TELEGRAM_WEBHOOK_SECRET="$PY_WALLET_TELEGRAM_WEBHOOK_SECRET_FILE" \
   --dry-run=client -o yaml \
 | kubeseal --format yaml \
   --controller-namespace kube-system \
   --controller-name sealed-secrets \
 > manifests/app/sealed-telegram-bot-secret.yaml
 rm -f "$PY_WALLET_TELEGRAM_TOKEN_FILE"
+rm -f "$PY_WALLET_TELEGRAM_WEBHOOK_SECRET_FILE"
 trap - EXIT
 unset PY_WALLET_TELEGRAM_TOKEN_FILE
+unset PY_WALLET_TELEGRAM_WEBHOOK_SECRET_FILE
 ```
 
 Before committing, verify that the generated file contains `encryptedData` and
@@ -62,6 +69,16 @@ that `telegram-bot-secret` exists in the cluster before enabling delivery:
 ```bash
 kubectl -n py-wallet-dev get secret telegram-bot-secret
 ```
+
+After the API rollout, register the webhook from a trusted shell with the same
+token and webhook secret loaded in the environment:
+
+```bash
+cd py_wallet
+python scripts/configure_telegram_webhook.py
+```
+
+Telegram will then send `/start` updates with the configured secret header.
 
 After the SealedSecret has synced, set `spec.suspend: false` in
 `telegram-daily-balance-cronjob.yaml` as a separate reviewed commit. An

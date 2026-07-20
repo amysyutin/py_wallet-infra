@@ -14,6 +14,7 @@ data:
   SNAPSHOT_AUTO_ON_WALLET_CREATE: "true"
   TELEGRAM_BOT_USERNAME: "@py_WalletBot"
   TELEGRAM_MINI_APP_URL: "https://pywallet.dev/telegram"
+  TELEGRAM_WEBHOOK_URL: "https://pywallet.dev/api/telegram/webhook"
   TELEGRAM_AUTH_MAX_AGE_SECONDS: "300"
   TELEGRAM_DAILY_BALANCE_ENABLED: "true"
   TELEGRAM_API_BASE_URL: "https://api.telegram.org"

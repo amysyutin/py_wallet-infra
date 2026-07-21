@@ -5,10 +5,10 @@ metadata:
 data:
   LOG_LEVEL: "INFO"
   RPC_URL_MAINNET: https://ethereum-rpc.publicnode.com
-  RPC_URL_BASE: https://base.drpc.org
-  RPC_URL_BNB: https://bsc.drpc.org
+  RPC_URL_BASE: https://mainnet.base.org,https://base.drpc.org
+  RPC_URL_BNB: https://bsc-dataseed.bnbchain.org,https://bsc-dataseed-public.bnbchain.org
   RPC_URL_ARB: https://arbitrum-one-rpc.publicnode.com
-  RPC_URL_LINEA: https://linea.drpc.org
+  RPC_URL_LINEA: https://rpc.linea.build,https://linea.drpc.org
   SNAPSHOT_SERVICE_URL: "http://py-wallet-snapshot-service:8001"
   SNAPSHOT_SCHEDULER_ENABLED: "false"
   SNAPSHOT_AUTO_ON_WALLET_CREATE: "true"

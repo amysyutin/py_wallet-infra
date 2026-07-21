@@ -20,6 +20,25 @@ See [`docs/releases/v0.1.md`](docs/releases/v0.1.md) for the platform release su
 See [`docs/telegram-mini-app.md`](docs/telegram-mini-app.md) for Telegram Mini
 App, bot token, and daily balance scheduler operations.
 
+## Pull request validation
+
+Same-repository pull requests are validated before auto-merge is enabled. The
+workflow renders every Kustomize root with pinned Kustomize, validates built-in
+Kubernetes resources and repository CRDs with pinned Kubeconform/catalog
+versions, rejects mutable `:latest` images, and rejects plaintext Kubernetes
+`Secret` resources.
+
+For the local render and policy checks, install Kustomize and run:
+
+```bash
+rendered_dir="$(mktemp -d)"
+scripts/render-manifests.sh "${rendered_dir}"
+scripts/check-manifest-policy.sh "${rendered_dir}"
+```
+
+Kubeconform runs in CI because schema validation downloads the pinned schema
+set. A failing validation job prevents the auto-merge job from running.
+
 ## Goals
 
 Move away from push deploys from CI (`kubectl` + kubeconfig) to GitOps:

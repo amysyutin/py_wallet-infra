@@ -8,17 +8,74 @@ on:
       - synchronize
       - ready_for_review
 
-permissions:
-  contents: write
-  pull-requests: write
-
 jobs:
+  validate-manifests:
+    if: >-
+      github.event.pull_request.draft == false &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    env:
+      KUSTOMIZE_VERSION: v5.8.1
+      KUSTOMIZE_SHA256: 029a7f0f4e1932c52a0476cf02a0fd855c0bb85694b82c338fc648dcb53a819d
+      KUBECONFORM_VERSION: v0.7.0
+      KUBECONFORM_SHA256: c31518ddd122663b3f3aa874cfe8178cb0988de944f29c74a0b9260920d115d3
+      CRD_CATALOG_REF: 34cef0fc2698bbb611f475515e555a2d7ca85b6c
+
+    steps:
+      - name: Checkout pull request
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Install pinned manifest tools
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          curl -fsSL \
+            "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_linux_amd64.tar.gz" \
+            -o "${RUNNER_TEMP}/kustomize.tar.gz"
+          echo "${KUSTOMIZE_SHA256}  ${RUNNER_TEMP}/kustomize.tar.gz" | sha256sum -c -
+          tar -xzf "${RUNNER_TEMP}/kustomize.tar.gz" -C "${RUNNER_TEMP}" kustomize
+
+          curl -fsSL \
+            "https://github.com/yannh/kubeconform/releases/download/${KUBECONFORM_VERSION}/kubeconform-linux-amd64.tar.gz" \
+            -o "${RUNNER_TEMP}/kubeconform.tar.gz"
+          echo "${KUBECONFORM_SHA256}  ${RUNNER_TEMP}/kubeconform.tar.gz" | sha256sum -c -
+          tar -xzf "${RUNNER_TEMP}/kubeconform.tar.gz" -C "${RUNNER_TEMP}" kubeconform
+          echo "${RUNNER_TEMP}" >> "${GITHUB_PATH}"
+
+      - name: Render Kustomize roots
+        run: scripts/render-manifests.sh "${RUNNER_TEMP}/rendered"
+
+      - name: Validate Kubernetes and CRD schemas
+        shell: bash
+        run: |
+          kubeconform \
+            -strict \
+            -summary \
+            -schema-location default \
+            -schema-location "https://raw.githubusercontent.com/datreeio/CRDs-catalog/${CRD_CATALOG_REF}/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json" \
+            "${RUNNER_TEMP}/rendered" \
+            apps \
+            bootstrap
+
+      - name: Enforce repository manifest policy
+        run: scripts/check-manifest-policy.sh "${RUNNER_TEMP}/rendered"
+
   enable-auto-merge:
+    needs: validate-manifests
     if: >-
       github.event.pull_request.draft == false &&
       github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 2
+    permissions:
+      contents: write
+      pull-requests: write
 
     steps:
       - name: Enable squash auto-merge

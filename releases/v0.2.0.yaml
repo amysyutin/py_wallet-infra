@@ -1,0 +1,31 @@
+apiVersion: pywallet.dev/v1alpha1
+kind: ProductRelease
+metadata:
+  name: py-wallet-v0.2.0
+spec:
+  version: 0.2.0
+  status: candidate
+  components:
+    backend:
+      version: 0.2.0
+      repository: https://github.com/amysyutin/py_wallet
+      commit: 741156a3da1b6ca1f9096026506ec391891b4bd0
+      image: ghcr.io/amysyutin/py_wallet:741156a3da1b6ca1f9096026506ec391891b4bd0
+    frontend:
+      version: 0.1.0
+      repository: https://github.com/amysyutin/py_wallet-front
+      commit: 3c6aef47243c41ddbbda39e9bb72caca407d4ae1
+      image: ghcr.io/amysyutin/py_wallet-front:3c6aef47243c41ddbbda39e9bb72caca407d4ae1
+    snapshotService:
+      version: 0.1.0
+      repository: https://github.com/amysyutin/py_wallet-snapshot-service
+      commit: b1ca7d4b42076fa5627102ccf5f68c5659bd272a
+      image: ghcr.io/amysyutin/py_wallet-snapshot-service:b1ca7d4b42076fa5627102ccf5f68c5659bd272a
+    infrastructure:
+      version: 0.2.0
+      repository: https://github.com/amysyutin/py_wallet-infra
+      ref: v0.2.0
+    documentation:
+      version: 0.2.0
+      repository: https://github.com/amysyutin/py_wallet-doc
+      ref: v0.2.0

@@ -17,6 +17,9 @@ GitOps repository for the **py_wallet** project: Kubernetes manifests and Argo C
 | Backup/restore | Planned | Not implemented | pg_dump CronJob + restore runbook |
 
 See [`docs/releases/v0.1.md`](docs/releases/v0.1.md) for the platform release summary.
+See [`docs/versioning.md`](docs/versioning.md) for component SemVer and the
+product release procedure. The current product release candidate is described
+by [`releases/v0.2.0.yaml`](releases/v0.2.0.yaml).
 See [`docs/telegram-mini-app.md`](docs/telegram-mini-app.md) for Telegram Mini
 App, bot token, and daily balance scheduler operations.
 

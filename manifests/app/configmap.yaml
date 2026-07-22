@@ -4,6 +4,7 @@ metadata:
   name: py-wallet-config
 data:
   LOG_LEVEL: "INFO"
+  TRUSTED_HOSTS: "pywallet.dev,*.pywallet.dev,py-wallet,py-wallet.py-wallet-dev,py-wallet.py-wallet-dev.svc,py-wallet.py-wallet-dev.svc.cluster.local"
   RPC_URL_MAINNET: https://ethereum-rpc.publicnode.com
   RPC_URL_BASE: https://mainnet.base.org,https://base.drpc.org
   RPC_URL_BNB: https://bsc-dataseed.bnbchain.org,https://bsc-dataseed-public.bnbchain.org

@@ -7,7 +7,7 @@ GitOps repository for the **py_wallet** project: Kubernetes manifests and Argo C
 | Area | Status | Current state | Next step |
 |---|---|---|---|
 | GitOps | Done | Argo CD app-of-apps, pull-based deploy | AppProject hardening |
-| CI/CD | Done | GHCR image by SHA, infra tag bump | Image signing / SBOM |
+| CI/CD | Done | GHCR image by SHA, validated infra bump PR | Image signing / SBOM |
 | Kubernetes runtime | Done | Deployment, Service, Ingress, probes, resources | HPA/PDB |
 | Database migrations | Done | Argo CD PreSync Alembic Job | Expand/contract migration policy |
 | TLS | Done | cert-manager + Let's Encrypt | Certificate expiry alert |
@@ -63,7 +63,8 @@ flowchart TB
 
   subgraph infraRepo["2. Infra repo update"]
     direction TB
-    updateInfra["deploybot: bump newTag in infra-repo"] --> infraCommit["Commit to py_wallet-infra"]
+    updateInfra["deploybot: bump newTag on deploy branch"] --> validateInfra["PR: render + schema + policy validation"]
+    validateInfra --> infraCommit["Auto-merge to py_wallet-infra main"]
   end
 
   subgraph argoCd["3. Argo CD sync"]
@@ -98,6 +99,20 @@ py_wallet-infra/
     ├── postgres/              # Postgres StatefulSet + SealedSecret
     └── app/                   # App Deployment, Ingress, migrate Job, SealedSecret, …
 ```
+
+## Automated image bumps
+
+Application build workflows create a unique `deploy/<service>/<sha>-<attempt>`
+branch in this repository and open a pull request instead of pushing directly to
+`main`. The pull request is rendered and validated by the same checks as every
+other infrastructure change, then auto-merged. A separate workflow deletes the
+closed deploy branch. Newer builds close older open deploy PRs for the same
+service, while a main-branch workflow rebases unrelated open deploy PRs after
+each merge so concurrent service releases do not block each other.
+
+The deploybot token must be able to push branches and create pull requests in
+this repository. It must not bypass branch protection or push directly to
+`main`.
 
 ## Image versioning
 

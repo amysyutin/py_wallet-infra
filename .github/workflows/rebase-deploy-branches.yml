@@ -1,0 +1,47 @@
+name: Rebase open deploy branches
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: read
+
+concurrency:
+  group: rebase-open-deploy-branches
+  cancel-in-progress: false
+
+jobs:
+  rebase:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Rebase same-repository deploy branches
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          gh pr list \
+            --repo "${GITHUB_REPOSITORY}" \
+            --state open \
+            --base main \
+            --json headRefName,isCrossRepository \
+            --jq '.[] | select(.isCrossRepository == false and (.headRefName | startswith("deploy/"))) | .headRefName' \
+          | while read -r deploy_branch; do
+              git fetch origin "refs/heads/${deploy_branch}:refs/remotes/origin/${deploy_branch}"
+              expected_sha=$(git rev-parse "origin/${deploy_branch}")
+              git switch --detach "origin/${deploy_branch}"
+              git rebase -X theirs origin/main
+              git push \
+                --force-with-lease="refs/heads/${deploy_branch}:${expected_sha}" \
+                origin "HEAD:refs/heads/${deploy_branch}"
+            done

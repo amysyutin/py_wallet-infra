@@ -42,6 +42,9 @@ spec:
             httpGet:
               path: /health/ready
               port: 8000
+              httpHeaders:
+                - name: Host
+                  value: pywallet.dev
             initialDelaySeconds: 5
             periodSeconds: 5
             timeoutSeconds: 3
@@ -50,6 +53,9 @@ spec:
             httpGet:
               path: /health/live
               port: 8000
+              httpHeaders:
+                - name: Host
+                  value: pywallet.dev
             initialDelaySeconds: 15
             periodSeconds: 20
             timeoutSeconds: 3

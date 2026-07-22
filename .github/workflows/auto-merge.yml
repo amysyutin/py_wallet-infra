@@ -7,16 +7,24 @@ on:
       - reopened
       - synchronize
       - ready_for_review
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Pull request number to validate and merge
+        required: true
+        type: number
 
 jobs:
   validate-manifests:
     if: >-
-      github.event.pull_request.draft == false &&
-      github.event.pull_request.head.repo.full_name == github.repository
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.pull_request.draft == false &&
+      github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       contents: read
+      pull-requests: read
     env:
       KUSTOMIZE_VERSION: v5.8.1
       KUSTOMIZE_SHA256: 029a7f0f4e1932c52a0476cf02a0fd855c0bb85694b82c338fc648dcb53a819d
@@ -25,10 +33,22 @@ jobs:
       CRD_CATALOG_REF: 34cef0fc2698bbb611f475515e555a2d7ca85b6c
 
     steps:
+      - name: Validate dispatched deploy PR
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          gh api "repos/${REPOSITORY}/pulls/${PR_NUMBER}" \
+            --jq 'select(.state == "open" and .draft == false and .head.repo.full_name == .base.repo.full_name and (.head.ref | startswith("deploy/"))) | .number' \
+          | grep -qx "${PR_NUMBER}"
+
       - name: Checkout pull request
         uses: actions/checkout@v6
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.event_name == 'workflow_dispatch' && format('refs/pull/{0}/head', inputs.pr_number) || github.event.pull_request.head.sha }}
 
       - name: Install pinned manifest tools
         shell: bash
@@ -69,8 +89,9 @@ jobs:
   enable-auto-merge:
     needs: validate-manifests
     if: >-
-      github.event.pull_request.draft == false &&
-      github.event.pull_request.head.repo.full_name == github.repository
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.pull_request.draft == false &&
+      github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
     timeout-minutes: 2
     permissions:
@@ -79,7 +100,16 @@ jobs:
 
     steps:
       - name: Enable squash auto-merge
+        if: github.event_name == 'pull_request_target'
         env:
           GH_TOKEN: ${{ github.token }}
           PR_URL: ${{ github.event.pull_request.html_url }}
         run: gh pr merge --auto --squash "$PR_URL"
+
+      - name: Merge validated deploy PR
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+          REPOSITORY: ${{ github.repository }}
+        run: gh pr merge --repo "${REPOSITORY}" --squash --delete-branch "${PR_NUMBER}"

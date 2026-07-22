@@ -1,0 +1,32 @@
+name: Cleanup closed deploy branches
+
+on:
+  pull_request_target:
+    types:
+      - closed
+
+permissions:
+  contents: write
+
+jobs:
+  delete-deploy-branch:
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      startsWith(github.event.pull_request.head.ref, 'deploy/')
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+
+    steps:
+      - name: Delete closed deploy branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DEPLOY_BRANCH: ${{ github.event.pull_request.head.ref }}
+        run: |
+          if gh api "/repos/${GITHUB_REPOSITORY}/git/ref/heads/${DEPLOY_BRANCH}" \
+            >/dev/null 2>&1; then
+            gh api \
+              --method DELETE \
+              "/repos/${GITHUB_REPOSITORY}/git/refs/heads/${DEPLOY_BRANCH}"
+          else
+            echo "Deployment branch is already absent: ${DEPLOY_BRANCH}"
+          fi

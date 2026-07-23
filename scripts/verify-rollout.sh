@@ -58,7 +58,7 @@ verify_application() {
 verify_application \
   py-wallet \
   py-wallet \
-  ghcr.io/amysyutin/py_wallet \
+  ghcr.io/amysyutin/py_wallet-api \
   manifests/app/kustomization.yaml
 
 verify_application \

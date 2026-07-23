@@ -8,9 +8,9 @@ spec:
   components:
     backend:
       version: 0.2.0
-      repository: https://github.com/amysyutin/py_wallet
+      repository: https://github.com/amysyutin/py_wallet-api
       commit: 741156a3da1b6ca1f9096026506ec391891b4bd0
-      image: ghcr.io/amysyutin/py_wallet:741156a3da1b6ca1f9096026506ec391891b4bd0
+      image: ghcr.io/amysyutin/py_wallet-api:741156a3da1b6ca1f9096026506ec391891b4bd0
     frontend:
       version: 0.1.0
       repository: https://github.com/amysyutin/py_wallet-front

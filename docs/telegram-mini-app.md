@@ -70,8 +70,9 @@ that `telegram-bot-secret` exists in the cluster before enabling delivery:
 kubectl -n py-wallet-dev get secret telegram-bot-secret
 ```
 
-After the API rollout, register the webhook from a trusted shell with the same
-token and webhook secret loaded in the environment:
+After the API rollout, the API registers the webhook automatically at startup
+using the token and webhook secret from `telegram-bot-secret`. To register it
+manually from a trusted shell:
 
 ```bash
 cd py_wallet

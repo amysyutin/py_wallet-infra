@@ -124,6 +124,7 @@ The single source of truth for the app image tag is [`manifests/app/kustomizatio
 ```yaml
 images:
   - name: ghcr.io/amysyutin/py_wallet
+    newName: ghcr.io/amysyutin/py_wallet-api
     newTag: <SHA>   # updated by deploybot after each successful build
 ```
 
@@ -198,8 +199,10 @@ kubectl get secret -n kube-system \
 
 | Repo | Role |
 |------|------|
-| [py_wallet](https://github.com/amysyutin/py_wallet) | Application source, CI build & push to GHCR |
 | **py_wallet-infra** (this repo) | GitOps manifests and Argo CD apps |
+| [py_wallet-api](https://github.com/amysyutin/py_wallet-api) | Backend application source, CI build & push to GHCR (`py_wallet-api`) |
+| [py_wallet-front](https://github.com/amysyutin/py_wallet-front) | Frontend application source, CI build & push to GHCR (`py_wallet-front`) |
+| [py_wallet-snapshot-service](https://github.com/amysyutin/py_wallet-snapshot-service) | Snapshot service source, CI build & push to GHCR (`py_wallet-snapshot-service`) |
 
 ## License
 

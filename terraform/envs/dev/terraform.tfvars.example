@@ -1,0 +1,12 @@
+aws_region     = "region"
+aws_profile    = "profile"
+
+project        = "pywallet"
+environment    = "dev"
+owner          = "name"
+
+key_name       = "key name"
+instance_type  = "t3.micro"
+
+# public ip IPv4
+my_ip_cidr     = "203.0.113.10/32"

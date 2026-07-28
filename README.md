@@ -108,10 +108,13 @@ py_wallet-infra/
 Application build workflows create a unique `deploy/<service>/<sha>-<attempt>`
 branch in this repository and open a pull request instead of pushing directly to
 `main`. The pull request is rendered and validated by the same checks as every
-other infrastructure change, then auto-merged. A separate workflow deletes the
-closed deploy branch. Newer builds close older open deploy PRs for the same
-service, while a main-branch workflow rebases unrelated open deploy PRs after
-each merge so concurrent service releases do not block each other.
+other infrastructure change, then auto-merged. A separate workflow deletes
+deploy branches that no longer belong to an open pull request. It runs when a
+pull request closes, can be started manually, and periodically reconciles
+events suppressed by GitHub's `GITHUB_TOKEN` recursion protection. Newer builds
+close older open deploy PRs for the same service, while a main-branch workflow
+rebases unrelated open deploy PRs after each merge so concurrent service
+releases do not block each other.
 
 The deploybot token must be able to push branches and create pull requests in
 this repository. It must not bypass branch protection or push directly to

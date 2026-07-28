@@ -1,32 +1,66 @@
-name: Cleanup closed deploy branches
+name: Cleanup deploy branches
 
 on:
   pull_request_target:
     types:
       - closed
+  workflow_dispatch:
+  schedule:
+    # A merge performed by a workflow's GITHUB_TOKEN does not emit another
+    # workflow run. Reconcile periodically so those branches are still removed.
+    - cron: "17,47 * * * *"
 
 permissions:
   contents: write
+  pull-requests: read
+
+concurrency:
+  group: cleanup-deploy-branches
+  cancel-in-progress: false
 
 jobs:
-  delete-deploy-branch:
-    if: >-
-      github.event.pull_request.head.repo.full_name == github.repository &&
-      startsWith(github.event.pull_request.head.ref, 'deploy/')
+  delete-orphaned-deploy-branches:
     runs-on: ubuntu-latest
     timeout-minutes: 2
 
     steps:
-      - name: Delete closed deploy branch
+      - name: Delete deploy branches without an open pull request
         env:
           GH_TOKEN: ${{ github.token }}
-          DEPLOY_BRANCH: ${{ github.event.pull_request.head.ref }}
         run: |
-          if gh api "/repos/${GITHUB_REPOSITORY}/git/ref/heads/${DEPLOY_BRANCH}" \
-            >/dev/null 2>&1; then
+          set -euo pipefail
+
+          mapfile -t open_branches < <(
+            gh pr list \
+              --repo "${GITHUB_REPOSITORY}" \
+              --state open \
+              --base main \
+              --json headRefName \
+              --jq '.[].headRefName'
+          )
+          mapfile -t deploy_branches < <(
+            gh api \
+              --paginate \
+              "/repos/${GITHUB_REPOSITORY}/git/matching-refs/heads/deploy/" \
+              --jq '.[] | .ref | ltrimstr("refs/heads/")'
+          )
+
+          for deploy_branch in "${deploy_branches[@]}"; do
+            branch_is_open=false
+            for open_branch in "${open_branches[@]}"; do
+              if [[ "${deploy_branch}" == "${open_branch}" ]]; then
+                branch_is_open=true
+                break
+              fi
+            done
+
+            if [[ "${branch_is_open}" == "true" ]]; then
+              echo "Keeping branch for an open pull request: ${deploy_branch}"
+              continue
+            fi
+
+            echo "Deleting orphaned deployment branch: ${deploy_branch}"
             gh api \
               --method DELETE \
-              "/repos/${GITHUB_REPOSITORY}/git/refs/heads/${DEPLOY_BRANCH}"
-          else
-            echo "Deployment branch is already absent: ${DEPLOY_BRANCH}"
-          fi
+              "/repos/${GITHUB_REPOSITORY}/git/refs/heads/${deploy_branch}"
+          done

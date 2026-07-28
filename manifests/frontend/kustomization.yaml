@@ -11,4 +11,4 @@ resources:
 images:
 - name: ghcr.io/amysyutin/py_wallet-front
   newName: ghcr.io/amysyutin/py_wallet-front
-  newTag: 581a9701261fda32a372c2d0a0262c91fcea04a1
+  newTag: 6483363bf5cd3e699996ccdb64b894fefd8f6ccb

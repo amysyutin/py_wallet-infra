@@ -1,12 +1,12 @@
-aws_region     = "region"
-aws_profile    = "profile"
+aws_region    = "ap-southeast-1"
+aws_profile   = "pywallet-dev"
 
-project        = "pywallet"
-environment    = "dev"
-owner          = "name"
+project       = "pywallet"
+environment   = "dev"
+owner         = "owner"
 
-key_name       = "key name"
-instance_type  = "t3.micro"
+key_name      = "pywallet-dev-key"
+instance_type = "t3.micro"
 
-# public ip IPv4
-my_ip_cidr     = "203.0.113.10/32"
+# Replace with public IPv4 in /32 format
+my_ip_cidr    = "203.0.113.10/32"

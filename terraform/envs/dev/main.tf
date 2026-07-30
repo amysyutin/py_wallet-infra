@@ -1,5 +1,5 @@
 data "aws_vpc" "default" {
-    default = true
+  default = true
 }
 
 data "aws_subnets" "default_vpc" {
@@ -54,21 +54,23 @@ resource "aws_security_group" "ec2_ssh" {
     }
 }
 
-resource "aws_instance" "this" {
-    ami = data.aws_ami.ubuntu.id
+
+module "ec2" {
+    source = "../../modules/ec2"
+
+    name = "${var.project}-${var.environment}-ec2"
+    ami_id = data.aws_ami.ubuntu.id
     instance_type = var.instance_type
-    key_name = var.key_name 
-
     subnet_id = data.aws_subnets.default_vpc.ids[0]
-    vpc_security_group_ids = [aws_security_group.ec2_ssh.id]
+    security_group_ids = [aws_security_group.ec2_ssh.id]
+    key_name = var.key_name
+    associate_public_ip = true
 
-    associate_public_ip_address = true
-
-    tags ={
-        Name = "${var.project}-${var.environment}-ec2"
+    tags = {
         Project = var.project
         Environment = var.environment
         ManagedBy = "terraform"
         Owner = var.owner
     }
+
 }

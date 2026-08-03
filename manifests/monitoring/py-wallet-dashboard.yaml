@@ -8,19 +8,234 @@ data:
   py-wallet.json: |
     {
       "uid": "py-wallet",
-      "title": "py-wallet",
+      "title": "py-wallet Product & Release",
+      "description": "Privacy-safe aggregate product and release signals for py-wallet-dev.",
       "schemaVersion": 39,
-      "version": 1,
+      "version": 2,
       "timezone": "browser",
-      "refresh": "30s",
-      "time": { "from": "now-1h", "to": "now" },
+      "refresh": "1m",
+      "time": { "from": "now-7d", "to": "now" },
+      "tags": ["py-wallet", "product", "release"],
       "panels": [
         {
           "id": 1,
-          "title": "Requests per second",
-          "type": "timeseries",
-          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+          "title": "How to read this dashboard",
+          "type": "text",
+          "gridPos": { "h": 4, "w": 24, "x": 0, "y": 0 },
+          "options": {
+            "mode": "markdown",
+            "content": "This dashboard uses aggregate, low-cardinality Prometheus signals only. Selected-range counters are observed actions, not unique users, and reset when a process restarts. D1/D7 cohorts, time-to-value and digest-attributed opens require the approved privacy-conscious event store; they are intentionally not estimated here."
+          }
+        },
+        {
+          "id": 2,
+          "title": "Registrations completed",
+          "description": "Committed registrations observed in the selected range.",
+          "type": "stat",
+          "gridPos": { "h": 7, "w": 8, "x": 0, "y": 4 },
           "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": { "defaults": { "decimals": 0 }, "overrides": [] },
+          "options": { "colorMode": "value", "graphMode": "area", "textMode": "auto" },
+          "targets": [
+            {
+              "expr": "sum by (channel) (increase(py_wallet_registration_completed_total{namespace=\"py-wallet-dev\"}[$__range]))",
+              "legendFormat": "{{channel}}"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "title": "First wallets added",
+          "description": "First persisted wallet per account, split only by bounded channel and wallet type.",
+          "type": "stat",
+          "gridPos": { "h": 7, "w": 8, "x": 8, "y": 4 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": { "defaults": { "decimals": 0 }, "overrides": [] },
+          "options": { "colorMode": "value", "graphMode": "area", "textMode": "auto" },
+          "targets": [
+            {
+              "expr": "sum by (channel, wallet_type) (increase(py_wallet_first_wallet_added_total{namespace=\"py-wallet-dev\"}[$__range]))",
+              "legendFormat": "{{channel}} / {{wallet_type}}"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "title": "First snapshot outcomes",
+          "description": "Terminal outcome of the auto snapshot for a first wallet.",
+          "type": "stat",
+          "gridPos": { "h": 7, "w": 8, "x": 16, "y": 4 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": { "defaults": { "decimals": 0 }, "overrides": [] },
+          "options": { "colorMode": "value", "graphMode": "area", "textMode": "auto" },
+          "targets": [
+            {
+              "expr": "sum by (channel, outcome) (increase(py_wallet_first_snapshot_outcome_total{namespace=\"py-wallet-dev\"}[$__range]))",
+              "legendFormat": "{{channel}} / {{outcome}}"
+            }
+          ]
+        },
+        {
+          "id": 5,
+          "title": "Manual refresh requests",
+          "description": "Portfolio refresh requests by bounded request outcome; this is not job completion.",
+          "type": "stat",
+          "gridPos": { "h": 7, "w": 8, "x": 0, "y": 11 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": { "defaults": { "decimals": 0 }, "overrides": [] },
+          "options": { "colorMode": "value", "graphMode": "area", "textMode": "auto" },
+          "targets": [
+            {
+              "expr": "sum by (channel, scope, outcome) (increase(py_wallet_manual_refresh_total{namespace=\"py-wallet-dev\"}[$__range]))",
+              "legendFormat": "{{channel}} / {{scope}} / {{outcome}}"
+            }
+          ]
+        },
+        {
+          "id": 6,
+          "title": "Failed-chain retry requests",
+          "description": "Owner-safe retry requests by request outcome; downstream completion is shown in snapshot jobs.",
+          "type": "stat",
+          "gridPos": { "h": 7, "w": 8, "x": 8, "y": 11 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": { "defaults": { "decimals": 0 }, "overrides": [] },
+          "options": { "colorMode": "value", "graphMode": "area", "textMode": "auto" },
+          "targets": [
+            {
+              "expr": "sum by (channel, outcome) (increase(py_wallet_failed_chain_retry_total{namespace=\"py-wallet-dev\"}[$__range]))",
+              "legendFormat": "{{channel}} / {{outcome}}"
+            }
+          ]
+        },
+        {
+          "id": 7,
+          "title": "Telegram digest delivery",
+          "description": "Delivery attempts by language, outcome and honest persisted health state.",
+          "type": "stat",
+          "gridPos": { "h": 7, "w": 8, "x": 16, "y": 11 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": { "defaults": { "decimals": 0 }, "overrides": [] },
+          "options": { "colorMode": "value", "graphMode": "area", "textMode": "auto" },
+          "targets": [
+            {
+              "expr": "sum by (language, outcome, health_state) (increase(py_wallet_telegram_digest_total{namespace=\"py-wallet-dev\"}[$__range]))",
+              "legendFormat": "{{language}} / {{outcome}} / {{health_state}}"
+            }
+          ]
+        },
+        {
+          "id": 8,
+          "title": "Snapshot job completion rate",
+          "description": "Worker terminal results, including partial and failed jobs.",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 18 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": { "defaults": { "unit": "ops", "decimals": 3 }, "overrides": [] },
+          "targets": [
+            {
+              "expr": "sum by (status, trigger_type) (rate(snapshot_worker_jobs_total{namespace=\"py-wallet-dev\"}[5m]))",
+              "legendFormat": "{{trigger_type}} / {{status}}"
+            }
+          ]
+        },
+        {
+          "id": 9,
+          "title": "Observed wallet summary freshness p95",
+          "description": "Age of persisted wallet summaries actually returned to API consumers; not fleet-wide wallet freshness.",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 18 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.95, sum by (le, source) (rate(py_wallet_wallet_snapshot_freshness_seconds_bucket{namespace=\"py-wallet-dev\"}[5m])))",
+              "legendFormat": "{{source}}"
+            }
+          ]
+        },
+        {
+          "id": 10,
+          "title": "Snapshot queue depth",
+          "type": "timeseries",
+          "gridPos": { "h": 7, "w": 8, "x": 0, "y": 26 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": { "defaults": { "decimals": 0 }, "overrides": [] },
+          "targets": [
+            {
+              "expr": "max(snapshot_worker_pending_jobs{namespace=\"py-wallet-dev\"})",
+              "legendFormat": "pending"
+            },
+            {
+              "expr": "max(snapshot_worker_running_jobs{namespace=\"py-wallet-dev\"})",
+              "legendFormat": "running"
+            }
+          ]
+        },
+        {
+          "id": 11,
+          "title": "Oldest pending snapshot job",
+          "type": "stat",
+          "gridPos": { "h": 7, "w": 8, "x": 8, "y": 26 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "orange", "value": 300 },
+                  { "color": "red", "value": 900 }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": { "colorMode": "background", "graphMode": "area", "textMode": "auto" },
+          "targets": [
+            {
+              "expr": "max(snapshot_worker_oldest_pending_job_age_seconds{namespace=\"py-wallet-dev\"})",
+              "legendFormat": "age"
+            }
+          ]
+        },
+        {
+          "id": 12,
+          "title": "API release identity",
+          "type": "table",
+          "gridPos": { "h": 7, "w": 8, "x": 16, "y": 26 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "targets": [
+            {
+              "expr": "max by (version, sha, environment) (py_wallet_build_info{namespace=\"py-wallet-dev\"})",
+              "format": "table",
+              "instant": true,
+              "legendFormat": "API"
+            }
+          ]
+        },
+        {
+          "id": 13,
+          "title": "Snapshot-service release identity",
+          "type": "table",
+          "gridPos": { "h": 7, "w": 8, "x": 0, "y": 33 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "targets": [
+            {
+              "expr": "max by (version, build_sha, environment) (snapshot_service_build_info{namespace=\"py-wallet-dev\"})",
+              "format": "table",
+              "instant": true,
+              "legendFormat": "snapshot-service"
+            }
+          ]
+        },
+        {
+          "id": 14,
+          "title": "API requests per second",
+          "type": "timeseries",
+          "gridPos": { "h": 7, "w": 8, "x": 8, "y": 33 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": { "defaults": { "unit": "reqps" }, "overrides": [] },
           "targets": [
             {
               "expr": "sum(rate(http_requests_total{namespace=\"py-wallet-dev\"}[5m]))",
@@ -29,11 +244,12 @@ data:
           ]
         },
         {
-          "id": 2,
-          "title": "Latency p95",
+          "id": 15,
+          "title": "API latency p95",
           "type": "timeseries",
-          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+          "gridPos": { "h": 7, "w": 8, "x": 16, "y": 33 },
           "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
           "targets": [
             {
               "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{namespace=\"py-wallet-dev\"}[5m])) by (le))",

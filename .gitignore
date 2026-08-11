@@ -1,2 +1,9 @@
 .DS_Store
 tmp/
+
+# Sealed Secrets controller master key — offline only, never in git
+.secret/
+*master.key*
+*sealed-secrets-master*
+*.pem
+tls.key

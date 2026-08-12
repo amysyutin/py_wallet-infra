@@ -83,3 +83,21 @@ module "ec2" {
   }
 
 }
+
+module "rds" {
+    source = "../../modules/rds"
+
+    name_prefix = "${var.project}-${var.environment}"
+    vpc_id = module.network.vpc_id
+    subnet_ids = module.network.private_subnet_ids
+    allowed_security_group_id = aws_security_group.ec2_ssh.id
+    db_name = "pywallet"
+    username = "pywallet"
+
+    tags = {
+        Project = var.project
+        Environment = var.environment
+        ManagedBy = "terraform"
+        Owner = var.owner
+    }
+}

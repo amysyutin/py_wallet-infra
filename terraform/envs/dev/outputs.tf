@@ -28,3 +28,23 @@ output "ssh_command" {
   value       = "ssh -i ~/.ssh/aws/pywallet-dev-key.pem ubuntu@${module.ec2.public_ip}"
 }
 
+output "rds_endpoint" {
+  description = "RDS endpoint host:port"
+  value = module.rds.endpoint
+}
+
+output "rds_db_name" {
+  description = "RDS database name"
+  value = module.rds.db_name
+}
+
+output "rds_username" {
+  description = "RDS master username"
+  value = module.rds.username
+}
+
+output "rds_password" {
+  description = "RDS master password"
+  value = module.rds.password
+  sensitive = true
+}

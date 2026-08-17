@@ -73,5 +73,8 @@ resource "aws_db_instance" "this" {
             Name = "${var.name_prefix}-postgres"
         }
     )
+    lifecycle {
+      create_before_destroy = true
+    }
 }
 

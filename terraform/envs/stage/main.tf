@@ -14,11 +14,11 @@ module "network" {
   source = "../../modules/network"
 
   name_prefix = local.name_prefix
-  vpc_cidr    = "10.20.0.0/16"
+  vpc_cidr    = "10.21.0.0/16"
   azs         = ["ap-southeast-1a", "ap-southeast-1b"]
 
-  public_subnet_cidrs  = ["10.20.0.0/24", "10.20.1.0/24"]
-  private_subnet_cidrs = ["10.20.10.0/24", "10.20.11.0/24"]
+  public_subnet_cidrs  = ["10.21.0.0/24", "10.21.1.0/24"]
+  private_subnet_cidrs = ["10.21.10.0/24", "10.21.11.0/24"]
   
 
   tags = local.common_tags

@@ -14,4 +14,4 @@ tls.key
 *.tfstate.*
 *.tfvars
 !*.tfvars.example
-.terraform.lock.hcl
+!.terraform.lock.hcl

@@ -19,7 +19,7 @@ module "network" {
 
   public_subnet_cidrs  = ["10.21.0.0/24", "10.21.1.0/24"]
   private_subnet_cidrs = ["10.21.10.0/24", "10.21.11.0/24"]
-  
+
 
   tags = local.common_tags
 }

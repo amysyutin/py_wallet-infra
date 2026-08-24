@@ -26,8 +26,8 @@ resource "aws_vpc" "this" {
   )
   lifecycle {
     precondition {
-        condition = length(var.azs) == length(var.public_subnet_cidrs) && length(var.azs) == length(var.private_subnet_cidrs)
-        error_message = "azs, public_subnet_cidrs and private_subnet_cidrs must have the same length."
+      condition     = length(var.azs) == length(var.public_subnet_cidrs) && length(var.azs) == length(var.private_subnet_cidrs)
+      error_message = "azs, public_subnet_cidrs and private_subnet_cidrs must have the same length."
     }
   }
 }

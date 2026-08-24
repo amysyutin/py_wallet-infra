@@ -17,4 +17,3 @@ output "azs" {
   description = "Availability zones used by this network"
   value       = var.azs
 }
-

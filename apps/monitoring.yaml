@@ -19,7 +19,7 @@ spec:
               searchNamespace: ALL
             datasources:
               enabled: true
-              searchNamespace: ALL  
+              searchNamespace: ALL
         prometheus:
           prometheusSpec:
             serviceMonitorSelectorNilUsesHelmValues: false

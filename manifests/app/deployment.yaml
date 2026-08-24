@@ -7,7 +7,7 @@ spec:
   strategy:
     type: RollingUpdate
     rollingUpdate:
-      maxSurge: 50%        
+      maxSurge: 50%
       maxUnavailable: 0%
   selector:
     matchLabels:
@@ -25,14 +25,14 @@ spec:
         - name: py-wallet
           image: ghcr.io/amysyutin/py_wallet
           imagePullPolicy: Always
-          ports: 
+          ports:
             - containerPort: 8000
           env:
             - name: APP_ENV
               value: "production"
           envFrom:
             - secretRef:
-                name: py-wallet-secrets 
+                name: py-wallet-secrets
             - secretRef:
                 name: telegram-bot-secret
                 optional: true

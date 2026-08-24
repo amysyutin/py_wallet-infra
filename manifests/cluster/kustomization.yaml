@@ -5,4 +5,3 @@ resources:
   - namespace-data.yaml
   - clusterissuer-staging.yaml
   - clusterissuer-prod.yaml
-  

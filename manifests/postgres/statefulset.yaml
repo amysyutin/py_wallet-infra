@@ -22,7 +22,7 @@ spec:
               value: /var/lib/postgresql/data/pgdata
           envFrom:
             - secretRef:
-                name: postgres-secret   
+                name: postgres-secret
           ports:
             - containerPort: 5432
               name: postgres

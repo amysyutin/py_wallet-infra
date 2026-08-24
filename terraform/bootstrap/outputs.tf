@@ -7,4 +7,3 @@ output "lock_table_name" {
   description = "DynamoDB table name for state locking"
   value       = aws_dynamodb_table.tf_lock.name
 }
-

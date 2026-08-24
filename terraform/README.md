@@ -1,6 +1,6 @@
-# Terraform — py_wallet AWS lab
+# Terraform — py_wallet AWS
 
-Учебная AWS-инфраструктура для py_wallet: VPC, EC2, RDS PostgreSQL, remote state.
+AWS infrastructure for py_wallet: VPC, EC2, RDS PostgreSQL, and remote state.
 
 ## Architecture
 
@@ -30,7 +30,7 @@ State: S3 (pywallet-dev-tfstate) + DynamoDB lock
 | `modules/ec2` | EC2 instance |
 | `modules/rds` | PostgreSQL + SG-to-SG + random password |
 | `envs/dev` | Root module, remote state `envs/dev/...` |
-| `envs/stage` | Root module, remote state `envs/stage/...` (plan-only lab) |
+| `envs/stage` | Root module, remote state `envs/stage/...` |
 
 ## Prerequisites
 
@@ -55,7 +55,7 @@ cp terraform.tfvars.example terraform.tfvars   # set your my_ip_cidr
 terraform init
 terraform plan
 terraform apply
-terraform destroy   # destroy RDS/EC2 when done for the day
+terraform destroy
 ```
 
 ## Stage
@@ -65,7 +65,6 @@ cd terraform/envs/stage
 cp terraform.tfvars.example terraform.tfvars
 terraform init
 terraform plan
-# apply only if you intentionally want a second stack
 ```
 
 Use a different VPC CIDR than `dev` if both environments run at the same time.
@@ -82,17 +81,15 @@ GitHub Actions (`.github/workflows/terraform-ci.yml`):
 ## Local tooling
 
 ```bash
-# optional local checks (also run in CI)
 pre-commit install
 pre-commit run --all-files
-
-# tflint binary (if not on PATH): put in ~/bin
-# https://github.com/terraform-linters/tflint/releases
 ```
 
-## Security notes (lab)
+Requires `tflint` on `PATH` for the local tflint hook.
+
+## Security notes
 
 - SSH only from `my_ip_cidr` `/32`
 - RDS: `publicly_accessible = false`, access via SG → SG
-- State encrypted in S3; passwords live in state (`sensitive` only masks CLI output)
-- Some Checkov findings (e.g. `backup_retention_period = 0`, `skip_final_snapshot`) are intentional for a destroy-friendly lab
+- State encrypted in S3; secrets in state are not masked by `sensitive` alone
+- RDS is configured for cheap ephemeral environments (`backup_retention_period = 0`, `skip_final_snapshot = true`, `deletion_protection = false`); tighten these for long-lived deployments

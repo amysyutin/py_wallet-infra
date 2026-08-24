@@ -15,7 +15,7 @@ GitOps repository for the **py_wallet** project: Kubernetes manifests and Argo C
 | Monitoring | Done | kube-prometheus-stack + ServiceMonitor + dashboard | Alerts/SLO |
 | Security hardening | Partial | ServiceAccount, no CI cluster access, JWT checks | NetworkPolicy, securityContext |
 | Backup/restore | Planned | Not implemented | pg_dump CronJob + restore runbook |
-| AWS / Terraform lab | Done | VPC + EC2 + RDS modules, remote state, CI | See [`terraform/README.md`](terraform/README.md) |
+| AWS / Terraform | Done | VPC + EC2 + RDS modules, remote state, CI | See [`terraform/README.md`](terraform/README.md) |
 
 See [`docs/releases/v0.1.md`](docs/releases/v0.1.md) for the platform release summary.
 See [`docs/versioning.md`](docs/versioning.md) for component SemVer and the

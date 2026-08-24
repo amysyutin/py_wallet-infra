@@ -2,7 +2,7 @@
 
 Creates a private PostgreSQL RDS instance with DB subnet group, SG-to-SG ingress, and a generated master password.
 
-Lab-oriented: `skip_final_snapshot = true`, `backup_retention_period = 0`, `deletion_protection = false`.
+Configured for ephemeral environments by default: `skip_final_snapshot = true`, `backup_retention_period = 0`, `deletion_protection = false`. Tighten for long-lived deployments.
 
 ## Requirements
 

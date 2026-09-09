@@ -20,7 +20,12 @@ spec:
         app: py-wallet-snapshot-service
     spec:
       serviceAccountName: py-wallet-snapshot-service
+      automountServiceAccountToken: false
       terminationGracePeriodSeconds: 60
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: py-wallet-snapshot-service
           image: ghcr.io/amysyutin/py_wallet-snapshot-service
@@ -56,3 +61,9 @@ spec:
             limits:
               cpu: 500m
               memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true

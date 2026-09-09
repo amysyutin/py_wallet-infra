@@ -5,3 +5,4 @@ resources:
   - statefulset.yaml
   - service.yaml
   - sealed-postgres-secret.yaml
+  - networkpolicy-postgres.yaml

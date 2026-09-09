@@ -92,3 +92,8 @@ kubectl -n py-wallet-data get endpoints postgres
 Confirm browser access to the frontend and `/api`, Prometheus target health,
 and a successful snapshot run. If either route or scrape fails, inspect the
 namespace and pod labels before changing a policy.
+
+The validation workflow does not merge this kind of infrastructure pull
+request. Auto-merge is limited to verified `deploy/` image-bump branches, so a
+maintainer can review the workload-isolation change and these rollout checks
+before merging it.

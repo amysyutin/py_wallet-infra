@@ -32,3 +32,6 @@ resources:
 - middleware-strip-api.yaml
 - telegram-daily-balance-cronjob.yaml
 - telegram-daily-balance-serviceaccount.yaml
+- networkpolicy-api.yaml
+- networkpolicy-frontend.yaml
+- networkpolicy-snapshot-service.yaml

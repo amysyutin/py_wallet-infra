@@ -11,7 +11,12 @@ spec:
   ttlSecondsAfterFinished: 600
   template:
     spec:
+      automountServiceAccountToken: false
       restartPolicy: Never
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: migrate
           image: ghcr.io/amysyutin/py_wallet
@@ -20,3 +25,9 @@ spec:
           envFrom:
             - secretRef:
                 name: py-wallet-secrets
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true

@@ -13,7 +13,7 @@ GitOps repository for the **py_wallet** project: Kubernetes manifests and Argo C
 | TLS | Done | cert-manager + Let's Encrypt | Certificate expiry alert |
 | Secrets | Done | SealedSecrets in git (`postgres-secret`, `py-wallet-secrets`) | Backup controller master key offline |
 | Monitoring | Done | kube-prometheus-stack + ServiceMonitor + dashboard | Alerts/SLO |
-| Security hardening | Partial | ServiceAccount, no CI cluster access, JWT checks | NetworkPolicy, securityContext |
+| Security hardening | Partial | NetworkPolicy and non-root workload hardening for API and snapshot jobs | Harden frontend and Postgres images |
 | Backup/restore | Planned | Not implemented | pg_dump CronJob + restore runbook |
 | AWS / Terraform | Done | VPC + EC2 + RDS modules, remote state, CI | See [`terraform/README.md`](terraform/README.md) |
 
@@ -23,6 +23,8 @@ product release procedure. The current product release candidate is described
 by [`releases/v0.2.0.yaml`](releases/v0.2.0.yaml).
 See [`docs/telegram-mini-app.md`](docs/telegram-mini-app.md) for Telegram Mini
 App, bot token, and daily balance scheduler operations.
+See [`docs/workload-security.md`](docs/workload-security.md) for workload
+isolation controls, allowed traffic and the cluster verification procedure.
 
 ## Pull request validation
 

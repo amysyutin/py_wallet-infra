@@ -35,3 +35,4 @@ resources:
 - networkpolicy-api.yaml
 - networkpolicy-frontend.yaml
 - networkpolicy-snapshot-service.yaml
+- poddisruptionbudget.yaml

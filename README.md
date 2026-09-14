@@ -8,7 +8,7 @@ GitOps repository for the **py_wallet** project: Kubernetes manifests and Argo C
 |---|---|---|---|
 | GitOps | Done | Argo CD app-of-apps, pull-based deploy | AppProject hardening |
 | CI/CD | Done | GHCR image by SHA, validated infra bump PR | Image signing / SBOM |
-| Kubernetes runtime | Done | Deployment, Service, Ingress, probes, resources | HPA/PDB |
+| Kubernetes runtime | Done | Probes, resources, API/frontend PDB, singleton snapshot policy | HPA after a load baseline |
 | Database migrations | Done | Argo CD PreSync Alembic Job | Expand/contract migration policy |
 | TLS | Done | cert-manager + Let's Encrypt | Certificate expiry alert |
 | Secrets | Done | SealedSecrets in git (`postgres-secret`, `py-wallet-secrets`) | Backup controller master key offline |
@@ -25,6 +25,8 @@ See [`docs/telegram-mini-app.md`](docs/telegram-mini-app.md) for Telegram Mini
 App, bot token, and daily balance scheduler operations.
 See [`docs/workload-security.md`](docs/workload-security.md) for workload
 isolation controls, allowed traffic and the cluster verification procedure.
+See [`docs/workload-availability.md`](docs/workload-availability.md) for the
+disruption budgets, replica policy and the conditions for introducing HPA.
 
 ## Pull request validation
 

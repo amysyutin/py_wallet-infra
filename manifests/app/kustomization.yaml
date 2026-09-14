@@ -8,7 +8,7 @@ commonAnnotations:
 images:
 - name: ghcr.io/amysyutin/py_wallet
   newName: ghcr.io/amysyutin/py_wallet-api
-  newTag: d1c9255323c5cc578bb78ac3cb1c2aa077f4e5cf
+  newTag: bc6398056dcb7f337fa773380d8c433eacc55a63
 
 labels:
 - includeTemplates: true

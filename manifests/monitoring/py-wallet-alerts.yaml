@@ -1,0 +1,82 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: py-wallet-runtime
+  labels:
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: py-wallet.runtime
+      rules:
+        - alert: PyWalletApiTargetDown
+          expr: up{namespace="py-wallet-dev",service="py-wallet"} == 0
+          for: 5m
+          labels:
+            severity: critical
+            service: api
+          annotations:
+            summary: py_wallet API target is unavailable
+            description: Prometheus has been unable to scrape the API target for five minutes.
+            runbook_url: https://github.com/amysyutin/py_wallet-infra/blob/main/docs/alerting.md
+
+        - alert: PyWalletApiHigh5xxRate
+          expr: |
+            (
+              sum(rate(http_requests_total{namespace="py-wallet-dev",status=~"5.."}[10m]))
+              /
+              sum(rate(http_requests_total{namespace="py-wallet-dev"}[10m]))
+            ) > 0.05
+            and
+            sum(rate(http_requests_total{namespace="py-wallet-dev"}[10m])) > 0.1
+          for: 10m
+          labels:
+            severity: warning
+            service: api
+          annotations:
+            summary: py_wallet API 5xx rate is above five percent
+            description: Sustained API error rate exceeds five percent while traffic is present.
+            runbook_url: https://github.com/amysyutin/py_wallet-infra/blob/main/docs/alerting.md
+
+        - alert: PyWalletSnapshotServiceTargetDown
+          expr: up{namespace="py-wallet-dev",service="py-wallet-snapshot-service"} == 0
+          for: 10m
+          labels:
+            severity: warning
+            service: snapshot-service
+          annotations:
+            summary: py_wallet snapshot-service target is unavailable
+            description: Prometheus has been unable to scrape the snapshot service for ten minutes.
+            runbook_url: https://github.com/amysyutin/py_wallet-infra/blob/main/docs/alerting.md
+
+        - alert: PyWalletSnapshotQueueStalled
+          expr: max(snapshot_worker_oldest_pending_job_age_seconds{namespace="py-wallet-dev"}) > 900
+          for: 15m
+          labels:
+            severity: warning
+            service: snapshot-service
+          annotations:
+            summary: py_wallet snapshot queue is stalled
+            description: The oldest pending snapshot job has remained older than fifteen minutes.
+            runbook_url: https://github.com/amysyutin/py_wallet-infra/blob/main/docs/alerting.md
+
+        - alert: PyWalletTlsCertificateExpiringSoon
+          expr: certmanager_certificate_expiration_timestamp_seconds{namespace="py-wallet-dev",name="py-wallet-tls"} - time() < 604800
+          for: 1h
+          labels:
+            severity: warning
+            service: ingress
+          annotations:
+            summary: py_wallet TLS certificate expires within seven days
+            description: The py-wallet-tls certificate needs renewal verification.
+            runbook_url: https://github.com/amysyutin/py_wallet-infra/blob/main/docs/alerting.md
+
+        - alert: PyWalletTlsCertificateExpiringCritical
+          expr: certmanager_certificate_expiration_timestamp_seconds{namespace="py-wallet-dev",name="py-wallet-tls"} - time() < 86400
+          for: 15m
+          labels:
+            severity: critical
+            service: ingress
+          annotations:
+            summary: py_wallet TLS certificate expires within 24 hours
+            description: The py-wallet-tls certificate is close to expiry and requires immediate renewal verification.
+            runbook_url: https://github.com/amysyutin/py_wallet-infra/blob/main/docs/alerting.md

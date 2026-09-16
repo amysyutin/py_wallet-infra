@@ -12,9 +12,9 @@ GitOps repository for the **py_wallet** project: Kubernetes manifests and Argo C
 | Database migrations | Done | Argo CD PreSync Alembic Job | Expand/contract migration policy |
 | TLS | Done | cert-manager + Let's Encrypt | Certificate expiry alert |
 | Secrets | Done | SealedSecrets in git (`postgres-secret`, `py-wallet-secrets`) | Backup controller master key offline |
-| Monitoring | Done | kube-prometheus-stack + ServiceMonitor + dashboard | Alerts/SLO |
+| Monitoring | Done | ServiceMonitor, dashboard and runtime alerts | Configure notification delivery and validate SLO targets |
 | Security hardening | Partial | NetworkPolicy and non-root workload hardening for API and snapshot jobs | Harden frontend and Postgres images |
-| Backup/restore | Planned | Not implemented | pg_dump CronJob + restore runbook |
+| Backup/restore | Ready for configuration | Suspended encrypted object-storage backup CronJob + restore runbook | Configure destination secret and complete a restore rehearsal |
 | AWS / Terraform | Done | VPC + EC2 + RDS modules, remote state, CI | See [`terraform/README.md`](terraform/README.md) |
 
 See [`docs/releases/v0.1.md`](docs/releases/v0.1.md) for the platform release summary.
@@ -27,6 +27,10 @@ See [`docs/workload-security.md`](docs/workload-security.md) for workload
 isolation controls, allowed traffic and the cluster verification procedure.
 See [`docs/workload-availability.md`](docs/workload-availability.md) for the
 disruption budgets, replica policy and the conditions for introducing HPA.
+See [`docs/alerting.md`](docs/alerting.md) for the runtime alert thresholds,
+triage steps and SLO validation boundary.
+See [`docs/postgres-backup-restore.md`](docs/postgres-backup-restore.md) for
+backup activation, restore rehearsal and recovery limits.
 
 ## Pull request validation
 

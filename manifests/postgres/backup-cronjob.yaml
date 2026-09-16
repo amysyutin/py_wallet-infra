@@ -1,0 +1,136 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgres-backup
+spec:
+  # Enable only after the encrypted destination Secret exists and a restore
+  # rehearsal has succeeded. The schedule is in UTC.
+  suspend: true
+  schedule: "15 2 * * *"
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 1800
+  successfulJobsHistoryLimit: 7
+  failedJobsHistoryLimit: 14
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      activeDeadlineSeconds: 1800
+      ttlSecondsAfterFinished: 86400
+      template:
+        metadata:
+          labels:
+            app: postgres-backup
+        spec:
+          serviceAccountName: postgres-backup
+          automountServiceAccountToken: false
+          restartPolicy: Never
+          securityContext:
+            runAsNonRoot: true
+            fsGroup: 1000
+            fsGroupChangePolicy: OnRootMismatch
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: dump
+              image: postgres:16
+              imagePullPolicy: IfNotPresent
+              command:
+                - /bin/sh
+                - -ec
+                - |
+                  if pg_dump \
+                    --host=postgres \
+                    --username="$POSTGRES_USER" \
+                    --format=custom \
+                    --no-owner \
+                    --no-privileges \
+                    "$POSTGRES_DB" > /backup/postgres.dump; then
+                    sha256sum /backup/postgres.dump > /backup/postgres.dump.sha256
+                    touch /backup/complete
+                  else
+                    touch /backup/failed
+                    exit 1
+                  fi
+              envFrom:
+                - secretRef:
+                    name: postgres-secret
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 256Mi
+                  ephemeral-storage: 1Gi
+                limits:
+                  cpu: 500m
+                  memory: 1Gi
+                  ephemeral-storage: 10Gi
+              securityContext:
+                runAsUser: 999
+                runAsGroup: 1000
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                readOnlyRootFilesystem: true
+              volumeMounts:
+                - name: backup
+                  mountPath: /backup
+
+            - name: upload
+              image: amazon/aws-cli:2.32.8
+              imagePullPolicy: IfNotPresent
+              command:
+                - /bin/sh
+                - -ec
+                - |
+                  attempt=0
+                  while [ ! -f /backup/complete ]; do
+                    if [ -f /backup/failed ]; then
+                      exit 1
+                    fi
+                    attempt=$((attempt + 1))
+                    if [ "$attempt" -ge 90 ]; then
+                      exit 1
+                    fi
+                    sleep 10
+                  done
+                  backup_date="$(date -u +%F)"
+                  backup_key="${BACKUP_S3_PREFIX%/}/${backup_date}/postgres.dump"
+                  aws s3 cp /backup/postgres.dump "s3://${BACKUP_S3_BUCKET}/${backup_key}" --sse AES256 --only-show-errors
+                  aws s3 cp /backup/postgres.dump.sha256 "s3://${BACKUP_S3_BUCKET}/${backup_key}.sha256" --sse AES256 --only-show-errors
+              env:
+                - name: HOME
+                  value: /tmp
+                - name: AWS_EC2_METADATA_DISABLED
+                  value: "true"
+              envFrom:
+                - secretRef:
+                    name: postgres-backup-destination
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 128Mi
+                  ephemeral-storage: 64Mi
+                limits:
+                  cpu: 250m
+                  memory: 256Mi
+                  ephemeral-storage: 256Mi
+              securityContext:
+                runAsUser: 1000
+                runAsGroup: 1000
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                readOnlyRootFilesystem: true
+              volumeMounts:
+                - name: backup
+                  mountPath: /backup
+                - name: aws-tmp
+                  mountPath: /tmp
+          volumes:
+            - name: backup
+              emptyDir:
+                sizeLimit: 10Gi
+            - name: aws-tmp
+              emptyDir:
+                sizeLimit: 256Mi

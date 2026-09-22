@@ -34,7 +34,7 @@ State: a dedicated S3 bucket and DynamoDB lock table per environment.
 
 ## Prerequisites
 
-- Terraform `>= 1.6`
+- Terraform `>= 1.6` locally; CI uses the pinned Terraform 1.16.3 release
 - AWS CLI profiles `pywallet-dev` and `pywallet-stage` (or equivalent named profiles configured locally)
 - EC2 key pair in AWS
 - `my_ip_cidr` in `terraform.tfvars` (never commit real tfvars)

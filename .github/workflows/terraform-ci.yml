@@ -47,6 +47,10 @@ jobs:
         run: python3 scripts/check-terraform-backends.py
         working-directory: .
 
+      - name: Check RDS environment profiles
+        run: python3 scripts/check-rds-profiles.py
+        working-directory: .
+
       - name: Terraform fmt (check)
         working-directory: terraform
         run: terraform fmt -check -recursive

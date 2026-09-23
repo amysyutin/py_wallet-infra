@@ -107,4 +107,4 @@ Requires `tflint` on `PATH` for the local tflint hook.
 - SSH only from `my_ip_cidr` `/32`
 - RDS: `publicly_accessible = false`, access via SG → SG
 - State encrypted in S3; secrets in state are not masked by `sensitive` alone
-- RDS is configured for cheap ephemeral environments (`backup_retention_period = 0`, `skip_final_snapshot = true`, `deletion_protection = false`); tighten these for long-lived deployments
+- Dev RDS remains ephemeral (`backup_retention_period = 0`, `skip_final_snapshot = true`, `deletion_protection = false`). Stage retains automated backups for seven days, blocks deletion, and requires a final snapshot if protection is deliberately disabled.
